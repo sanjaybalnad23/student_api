@@ -1,4 +1,0 @@
-env: "dev"
-postgres_connection_string:"postgresql://neondb_owner:npg_2dxFSi1CplqJ@ep-solitary-wildflower-a17ztnvb-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-http_server:
-  address:"localhost:3032"
