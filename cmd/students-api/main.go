@@ -11,21 +11,24 @@ import (
 	"time"
 
 	"github.com/Drstrange373/student-api/internal/config"
+	"github.com/Drstrange373/student-api/internal/http/handlers/student"
+	"github.com/Drstrange373/student-api/internal/storage/database"
 )
 
 func main() {
 	// load config
 	cfg := config.LoadConfiguration()
 	// database setup
+	storage, err := database.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	slog.Info("Database initialized", slog.String("env", cfg.Env))
+
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(200)
-		w.Write([]byte("<h1>Welcome to students api</h1>"))
-
-	})
+	router.HandleFunc("POST /api/v1/student", student.New(storage))
 	// setup server
 
 	var server = http.Server{
@@ -50,14 +53,21 @@ func main() {
 
 	slog.Info("Shutting down the server")
 
+	err = storage.Db.Close()
+	if err != nil {
+		slog.Error("Error closing database:" + err.Error())
+	} else {
+		slog.Info("Database closed successfully")
+	}
+
 	// Graceful shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
 	defer cancel()
 
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		slog.Error("Failed to shutdown gracefully", slog.String("error", err.Error()))
 	}
 	slog.Info("Server shutdown successfully")
-
 }
