@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"log/slog"
+
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -26,7 +28,8 @@ func LoadConfiguration() *Config {
 		configPath = *flags
 
 		if configPath == "" {
-			log.Fatal("Config path is not set")
+			slog.Info("Config path is not set, using default path")
+			configPath = `.\config\local.yaml`
 		}
 	}
 
